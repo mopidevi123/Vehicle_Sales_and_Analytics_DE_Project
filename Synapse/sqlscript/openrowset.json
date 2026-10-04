@@ -1,0 +1,17 @@
+{
+	"name": "openrowset",
+	"properties": {
+		"content": {
+			"query": "CREATE MASTER KEY ENCRYPTION BY PASSWORD = ''\n\n\n------------------------\n------CREATE CREDENTIAL\n--------------------------\n\nCREATE DATABASE SCOPED CREDENTIAL pravcreds\nWITH \n    IDENTITY = 'Managed Identity'\n\n\n------------------------\n----CREATE EXT DATA SOURCE\n-------------------------\n\nCREATE EXTERNAL DATA SOURCE vehicle_sales\nWITH\n(\n    LOCATION = 'https://pravdatalake.dfs.core.windows.net/gold',\n    CREDENTIAL = pravcreds\n)\n\n\n------------------------\n----OPENROWSET FUNCTION\n-------------------------\n\nSELECT \n    *\nFROM \n    OPENROWSET(\n        BULK 'dim_automaker/',\n        DATA_SOURCE = 'raw_ext_source',\n        FORMAT = 'DELTA'\n    ) as data\n\n\n\n------------------------\n----CREATE VIEWS\n-------------------------\n\nCREATE VIEW dim_automaker\nAS \nSELECT\n     * \nFROM \n    OPENROWSET(\n        BULK 'dim_automaker/',\n        DATA_SOURCE = 'vehicle_sales',\n        FORMAT = 'DELTA'\n    ) AS automaker\n\n\nSELECT * FROM dim_automaker\n\n--------------------\nCREATE VIEW dim_genmodel\nAS \nSELECT\n     * \nFROM \n    OPENROWSET(\n        BULK 'dim_genmodel/',\n        DATA_SOURCE = 'vehicle_sales',\n        FORMAT = 'DELTA'\n    ) AS genmodel\n\n\nSELECT * FROM dim_genmodel\n\n--------------\nCREATE VIEW dim_trim\nAS \nSELECT\n     * \nFROM \n    OPENROWSET(\n        BULK 'dim_trim/',\n        DATA_SOURCE = 'vehicle_sales',\n        FORMAT = 'DELTA'\n    ) AS trim\n\n\nSELECT * FROM dim_trim\n\n--------------\nCREATE VIEW dimension_date\nAS \nSELECT\n     * \nFROM \n    OPENROWSET(\n        BULK 'dimension_date/',\n        DATA_SOURCE = 'vehicle_sales',\n        FORMAT = 'DELTA'\n    ) AS date\n\nSELECT * FROM dimension_date\n\n--------------\nCREATE VIEW fact_ad_listing\nAS \nSELECT\n     * \nFROM \n    OPENROWSET(\n        BULK 'fact_ad_listing/',\n        DATA_SOURCE = 'vehicle_sales',\n        FORMAT = 'DELTA'\n    ) AS ad_listing\n\n\nSELECT * FROM fact_ad_listing\n\n\n---------------------\nCREATE VIEW fact_price_history\nAS \nSELECT\n     * \nFROM \n    OPENROWSET(\n        BULK 'fact_price_history/',\n        DATA_SOURCE = 'vehicle_sales',\n        FORMAT = 'DELTA'\n    ) AS price_history\n\n\nSELECT * FROM fact_price_history\n\n\n--------------------------\nCREATE VIEW fact_sales\nAS \nSELECT\n     * \nFROM \n    OPENROWSET(\n        BULK 'fact_sales/',\n        DATA_SOURCE = 'vehicle_sales',\n        FORMAT = 'DELTA'\n    ) AS sales\n\n\nSELECT * FROM fact_sales\n\n\ni have created all the views \n\ncan you give me all the code ?",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "master",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
